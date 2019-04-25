@@ -17,20 +17,10 @@ namespace WeatherBot.Database.Models
         [Column("cityId")]
         public long? CityId { get; set; }
         
-        [Column("forecastTime")]
-        public long? ForecastTime { get; set; }
+        [Column("distributionTime")]
+        public long? DistributionTime { get; set; }
         
         [Column("geoState")]
         public int GeoState { get; set; }
-
-        public User(long id, string username)
-        {
-            Id = id;
-            Username = username;
-            Lang = "ru";
-            CityId = null;
-            ForecastTime = null;
-            GeoState = 0;
-        }
     }
 }

@@ -7,9 +7,9 @@ using System.Web;
 
 namespace WeatherBot.WeatherAPI
 {
-    internal static class Requests
+    static class Requests
     {
-        private static readonly HttpClient HttpClient ;
+        private static readonly HttpClient HttpClient;
 
         static Requests()
         {

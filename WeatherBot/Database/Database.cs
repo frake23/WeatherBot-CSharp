@@ -1,8 +1,10 @@
 using System;
 using System.Data;
+using System.Linq;
 using System.Threading.Tasks;
 using WeatherBot.Database.Models;
 using Dapper;
+using Microsoft.Data.Sqlite;
 
 namespace WeatherBot.Database
 {
@@ -13,20 +15,36 @@ namespace WeatherBot.Database
         {
             _connectionString = connectionString;
         }
-        public async Task AddUserById(User user)
+        public async Task<User> AddUser(long id, string username)
         {
             using (var conn = (T) Activator.CreateInstance(typeof(T), _connectionString))
             {
-                const string sql = "INSERT INTO users (id, username, lang, cityId, forecastTime, geoState) VALUES (@id, @username, @lang, @cityId, @forecastTime, @geoState)";
+                const string sql = @"INSERT INTO users (id, username) VALUES (@id, @username)";
                 await conn.ExecuteAsync(sql, new
                 {
-                    id =user.Id,
-                    username = user.Username,
-                    lang = user.Lang,
-                    cityId = user.CityId,
-                    forecastTime = user.ForecastTime,
-                    geoState = user.GeoState
+                    id,
+                    username
                 });
+            }
+            return await GetUserById(id);
+        }
+
+        public async Task<User> GetUserById(long id)
+        {
+            using (var conn = (T) Activator.CreateInstance(typeof(T), _connectionString))
+            {
+                const string sql = "SELECT * FROM users WHERE id = @id";
+                var query = await conn.QueryAsync<User>(sql, new {id});
+                return query.FirstOrDefault();
+            }
+        }
+
+        public async Task UpdateLanguage(long id, string lang)
+        {
+            using (var conn = (T) Activator.CreateInstance(typeof(T), _connectionString))
+            {
+                const string sql = "UPDATE users SET lang = @lang WHERE id = @id";
+                await conn.ExecuteAsync(sql, new {lang, id});
             }
         }
     }
