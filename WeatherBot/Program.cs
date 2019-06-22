@@ -6,6 +6,7 @@ using MihaZupan;
 using Telegram.Bot;
 using Telegram.Bot.Args;
 using Telegram.Bot.Types.Enums;
+using Telegram.Bot.Types.ReplyMarkups;
 using WeatherBot.Database;
 using WeatherBot.KeyboardMarkups;
 
@@ -38,50 +39,52 @@ namespace WeatherBot
             {
                 case "backToMain":
                 {
-                    await _bot.EditMessageTextAsync(id, messageId, MessageText.Text["MainText"][lang], replyMarkup: InlineKeyboardMarkups.MainMarkup(lang));
+                    await _bot.EditMessageTextAsync(id, messageId, MessageText.Text["MainText"][lang],
+                        replyMarkup: InlineKeyboardMarkups.MainInlineMarkup(lang));
                     break;
                 }
                 case "backToSettings":
                 {
-                    await _bot.EditMessageTextAsync(id, messageId, MessageText.Text["SettingsText"][lang], replyMarkup: InlineKeyboardMarkups.SettingsMarkup(lang));
+                    await _bot.EditMessageTextAsync(id, messageId, MessageText.Text["SettingsText"][lang],
+                        replyMarkup: InlineKeyboardMarkups.SettingsInlineMarkup(lang));
                     break;
                 }
                 case "settings":
                 {
-                    await _bot.EditMessageTextAsync(id, messageId, MessageText.Text["SettingsText"][lang], replyMarkup: InlineKeyboardMarkups.SettingsMarkup(lang));
+                    await _bot.EditMessageTextAsync(id, messageId, MessageText.Text["SettingsText"][lang],
+                        replyMarkup: InlineKeyboardMarkups.SettingsInlineMarkup(lang));
                     break;
                 }
                 case "setGeolocation":
                 {
+                    await _bot.DeleteMessageAsync(id, messageId);
                     if (user.CityId == null)
-                        await _bot.EditMessageTextAsync(id, messageId, MessageText.Text["GeolocationIsNullText"][lang], ParseMode.Html, replyMarkup: InlineKeyboardMarkups.GeolocationMarkup(lang));
-                    
-                    break;
-                }
-                case "requestLocation":
-                {
-                    break;
-                }
-                case "findCity":
-                {
-                    await _bot.EditMessageTextAsync(id, messageId, MessageText.Text["FindCityText"][lang], ParseMode.Html, replyMarkup: InlineKeyboardMarkups.BackToMainMarkup());
+                    {
+                        await _bot.SendTextMessageAsync(id, MessageText.Text["GeolocationIsNullText"][lang],
+                            ParseMode.Html, replyMarkup: ReplyKeyboardMarkups.LocationReplyMarkup(lang));
+                        await _database.UpdateGeoState(id, 1);
+                    }
+
                     break;
                 }
                 case "selectLanguage":
                 {
-                    await _bot.EditMessageTextAsync(id, messageId, MessageText.Text["SelectLanguageText"][lang], replyMarkup: InlineKeyboardMarkups.LanguageMarkup());
+                    await _bot.EditMessageTextAsync(id, messageId, MessageText.Text["SelectLanguageText"][lang],
+                        replyMarkup: InlineKeyboardMarkups.LanguageInlineMarkup());
                     break;
                 }
                 case "englishLanguage":
                 {
                     await _database.UpdateLanguage(id, "en");
-                    await _bot.EditMessageTextAsync(id, messageId, MessageText.Text["SettingsText"]["en"], replyMarkup: InlineKeyboardMarkups.SettingsMarkup("en"));
+                    await _bot.EditMessageTextAsync(id, messageId, MessageText.Text["SettingsText"]["en"],
+                        replyMarkup: InlineKeyboardMarkups.SettingsInlineMarkup("en"));
                     break;
                 }
                 case "russianLanguage":
                 {
                     await _database.UpdateLanguage(id, "ru");
-                    await _bot.EditMessageTextAsync(id, messageId, MessageText.Text["SettingsText"]["ru"], replyMarkup: InlineKeyboardMarkups.SettingsMarkup("ru"));
+                    await _bot.EditMessageTextAsync(id, messageId, MessageText.Text["SettingsText"]["ru"],
+                        replyMarkup: InlineKeyboardMarkups.SettingsInlineMarkup("ru"));
                     break;
                 }
             }
@@ -100,6 +103,8 @@ namespace WeatherBot
                 var id = msg.Chat.Id;
                 var username = msg.Chat.Username;
                 var user = await _database.GetUserById(id) ?? await _database.AddUser(id, username);
+                var lang = user.Lang;
+                var geoState = user.GeoState;
                 
                 switch (msg.Type)
                 {
@@ -107,13 +112,25 @@ namespace WeatherBot
                     {
                         var text = msg.Text;
                         var commandArgs = text.Split();
-                        if (commandArgs[0].Equals("/start") || commandArgs.Equals("/help"))
+                        if (geoState == 0)
                         {
-                            await _bot.SendTextMessageAsync(id, MessageText.Text["MainText"][user.Lang], replyMarkup: InlineKeyboardMarkups.MainMarkup(user.Lang));
+                            if (commandArgs[0].Equals("/start") || commandArgs[0].Equals("/help"))
+                            {
+                                await _bot.SendTextMessageAsync(id, MessageText.Text["MainText"][user.Lang],
+                                    replyMarkup: InlineKeyboardMarkups.MainInlineMarkup(user.Lang));
+                            }
                         }
-                        else
+                        else if (geoState == 1)
                         {
-                            
+                            switch (text)
+                            {
+                                case "⬅":
+                                    await _bot.SendTextMessageAsync(id, MessageText.Text["SettingsText"][lang],
+                                        replyMarkup: InlineKeyboardMarkups.SettingsInlineMarkup(lang));
+                                    await _database.UpdateGeoState(id, 0);
+                                    break;
+                                
+                            }
                         }
                         break;
                     }

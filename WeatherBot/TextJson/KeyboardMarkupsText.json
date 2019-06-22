@@ -10,23 +10,23 @@
   },
   
   "ForecastDistributionText": {
-    "ru": "Рассылка прогнозов",
-    "en": "Forecast distribution"
+    "ru": "Рассылка прогнозов ⌚",
+    "en": "Forecast distribution ⌚"
   },
 
   "GeolocationText": {
-    "ru": "Геолокация",
-    "en": "Geolocation"
+    "ru": "Геолокация \uD83D\uDCCD",
+    "en": "Geolocation \uD83D\uDCCD"
   },
 
   "SettingsText": {
-    "ru": "⚙ Настройка",
-    "en": "⚙ Settings"
+    "ru": "Настройка ⚙",
+    "en": "Settings ⚙"
   },
 
   "SelectLanguageText": {
-    "ru": "Русский 🇷🇺",
-    "en": "English 🇬🇧"
+    "ru": "Русский \uD83C\uDDF7\uD83C\uDDFA",
+    "en": "English \uD83C\uDDEC\uD83C\uDDE7"
   },
 
   "RequestLocationText": {

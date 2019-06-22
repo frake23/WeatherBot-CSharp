@@ -8,7 +8,7 @@ namespace WeatherBot.KeyboardMarkups
         {
             return InlineKeyboardButton.WithCallbackData("⬅", callbackData);
         }
-        internal static InlineKeyboardMarkup MainMarkup(string lang)
+        internal static InlineKeyboardMarkup MainInlineMarkup(string lang)
         {
             return new InlineKeyboardMarkup(new []
             {
@@ -23,7 +23,7 @@ namespace WeatherBot.KeyboardMarkups
                 }
             });
         }
-        internal static InlineKeyboardMarkup SettingsMarkup(string lang)
+        internal static InlineKeyboardMarkup SettingsInlineMarkup(string lang)
         {
             return new InlineKeyboardMarkup(new []
             {
@@ -45,7 +45,7 @@ namespace WeatherBot.KeyboardMarkups
                 }
             });
         }
-        internal static InlineKeyboardMarkup LanguageMarkup()
+        internal static InlineKeyboardMarkup LanguageInlineMarkup()
         {
             return new InlineKeyboardMarkup(new []
             {
@@ -57,32 +57,6 @@ namespace WeatherBot.KeyboardMarkups
                 new []
                 {
                     BackButton("backToSettings")
-                }
-            });
-        }
-
-        internal static InlineKeyboardMarkup GeolocationMarkup(string lang)
-        {
-            return new InlineKeyboardMarkup(new []
-            {
-                new []
-                {
-                    InlineKeyboardButton.WithCallbackData(KeyboardMarkupsText.Text["RequestLocationText"][lang], "requestLocation"),
-                    InlineKeyboardButton.WithCallbackData(KeyboardMarkupsText.Text["FindCityText"][lang], "findCity")
-                },
-                new []
-                {
-                    BackButton("backToSettings")
-                }
-            });
-        }
-        internal static InlineKeyboardMarkup BackToMainMarkup()
-        {
-            return new InlineKeyboardMarkup(new []
-            {
-                new []
-                {
-                    BackButton("backToMain")
                 }
             });
         }
