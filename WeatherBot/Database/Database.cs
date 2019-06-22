@@ -47,5 +47,14 @@ namespace WeatherBot.Database
                 await conn.ExecuteAsync(sql, new {lang, id});
             }
         }
+        
+        public async Task UpdateGeoState(long id, int geoState)
+        {
+            using (var conn = (T) Activator.CreateInstance(typeof(T), _connectionString))
+            {
+                const string sql = "UPDATE users SET geoState = @geoState WHERE id = @id";
+                await conn.ExecuteAsync(sql, new {geoState, id});
+            }
+        }
     }
 }

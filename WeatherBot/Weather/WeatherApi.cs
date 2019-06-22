@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace WeatherBot.WeatherAPI
+namespace WeatherBot.Weather
 {
     internal static class WeatherApi
     {
@@ -11,7 +11,7 @@ namespace WeatherBot.WeatherAPI
             {
                 {"APPID", "b6907d289e10d714a6e88b30761fae22"}, {"id", "524901"}
             };
-            return await Requests.GetString("https://samples.openweathermap.org/data/2.5/weather", parameters);
+            return await Requests.Requests.GetString("https://samples.openweathermap.org/data/2.5/weather", parameters);
         }
     }
 }

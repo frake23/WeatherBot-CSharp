@@ -1,9 +1,9 @@
 using Newtonsoft.Json;
 
-namespace WeatherBot.WeatherAPI.Json.CurrentWeather
+namespace WeatherBot.Weather.Json.CurrentWeather
 {
     [JsonObject]
-    public class JCurrentWeather
+    public class JsonCurrentWeather
     {
         [JsonProperty(PropertyName = "coord")]
         public Coord Coord { get; set; }

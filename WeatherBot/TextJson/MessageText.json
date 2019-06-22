@@ -1,0 +1,31 @@
+{
+  "MainText": {
+    "ru": "Найстройка и погода",
+    "en": "Settings and weather"
+  },
+  
+  "GeolocationIsNullText": {
+    "ru": "Геопозиция <strong>не настроена</strong>.\nВыберете способ настройки",
+    "en": "Geolocation is <strong>not cofigured</strong>.\nChoose the way to set up it"
+  },
+  
+  "FindCityText": {
+    "ru": "Введите город в фор    мате\n<strong>Москва, ru</strong>\nНайдите двухзначный iso код своей страны на countrycode.org",
+    "en": "Type the city in the format\n<strong>London, gb</strong>\nYou can find your country's 2 digit iso code on countrycode.org"
+  },
+  
+  "SettingsText": {
+    "ru": "Найстройка",
+    "en": "Settings"
+  },
+  
+  "SelectLanguageText": {
+    "ru": "Выберете язык",
+    "en": "Select language"
+  },
+
+  "RequestLocationText": {
+    "ru": "Отправить местоположение",
+    "en": "Send location"
+  }
+}

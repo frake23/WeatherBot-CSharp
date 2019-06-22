@@ -7,7 +7,7 @@ using Telegram.Bot;
 using Telegram.Bot.Args;
 using Telegram.Bot.Types.Enums;
 using WeatherBot.Database;
-using WeatherBot.Database.Models;
+using WeatherBot.KeyboardMarkups;
 
 namespace WeatherBot
 {
@@ -22,14 +22,8 @@ namespace WeatherBot
             await _bot.DeleteWebhookAsync();
             _bot.OnMessage += BotOnMessage;
             _bot.OnCallbackQuery += BotOnCallbackQuery;
-            _bot.OnCallbackQuery += BotOnLanguageCallbackQuery;
             _bot.StartReceiving();
             Thread.CurrentThread.Join();
-        }
-
-        private static void BotOnLanguageCallbackQuery(object sender, CallbackQueryEventArgs e)
-        {
-            return;        
         }
 
         private static async void BotOnCallbackQuery(object sender, CallbackQueryEventArgs e)
@@ -38,34 +32,56 @@ namespace WeatherBot
             var messageId = callbackQuery.Message.MessageId;
             var id = callbackQuery.From.Id;
             var user = await _database.GetUserById(id);
-            
+            var lang = user.Lang;
+
             switch (callbackQuery.Data)
             {
-                case "back":
+                case "backToMain":
                 {
-                    await _bot.EditMessageTextAsync(id, messageId, "1", replyMarkup: Markups.MainMarkup(user.Lang));
+                    await _bot.EditMessageTextAsync(id, messageId, MessageText.Text["MainText"][lang], replyMarkup: InlineKeyboardMarkups.MainMarkup(lang));
+                    break;
+                }
+                case "backToSettings":
+                {
+                    await _bot.EditMessageTextAsync(id, messageId, MessageText.Text["SettingsText"][lang], replyMarkup: InlineKeyboardMarkups.SettingsMarkup(lang));
+                    break;
+                }
+                case "settings":
+                {
+                    await _bot.EditMessageTextAsync(id, messageId, MessageText.Text["SettingsText"][lang], replyMarkup: InlineKeyboardMarkups.SettingsMarkup(lang));
                     break;
                 }
                 case "setGeolocation":
                 {
-                    await _bot.EditMessageTextAsync(id, messageId, "1", replyMarkup: Markups.GeolocationMarkup(user.Lang));
+                    if (user.CityId == null)
+                        await _bot.EditMessageTextAsync(id, messageId, MessageText.Text["GeolocationIsNullText"][lang], ParseMode.Html, replyMarkup: InlineKeyboardMarkups.GeolocationMarkup(lang));
+                    
+                    break;
+                }
+                case "requestLocation":
+                {
+                    break;
+                }
+                case "findCity":
+                {
+                    await _bot.EditMessageTextAsync(id, messageId, MessageText.Text["FindCityText"][lang], ParseMode.Html, replyMarkup: InlineKeyboardMarkups.BackToMainMarkup());
                     break;
                 }
                 case "selectLanguage":
                 {
-                    await _bot.EditMessageTextAsync(id, messageId, "2", replyMarkup: Markups.LanguageMarkup());
+                    await _bot.EditMessageTextAsync(id, messageId, MessageText.Text["SelectLanguageText"][lang], replyMarkup: InlineKeyboardMarkups.LanguageMarkup());
                     break;
                 }
                 case "englishLanguage":
                 {
                     await _database.UpdateLanguage(id, "en");
-                    await _bot.EditMessageTextAsync(id, messageId, "3", replyMarkup: Markups.MainMarkup("en"));
+                    await _bot.EditMessageTextAsync(id, messageId, MessageText.Text["SettingsText"]["en"], replyMarkup: InlineKeyboardMarkups.SettingsMarkup("en"));
                     break;
                 }
                 case "russianLanguage":
                 {
                     await _database.UpdateLanguage(id, "ru");
-                    await _bot.EditMessageTextAsync(id, messageId, "3", replyMarkup: Markups.MainMarkup("ru"));
+                    await _bot.EditMessageTextAsync(id, messageId, MessageText.Text["SettingsText"]["ru"], replyMarkup: InlineKeyboardMarkups.SettingsMarkup("ru"));
                     break;
                 }
             }
@@ -91,18 +107,13 @@ namespace WeatherBot
                     {
                         var text = msg.Text;
                         var commandArgs = text.Split();
-                        switch (commandArgs[0])
+                        if (commandArgs[0].Equals("/start") || commandArgs.Equals("/help"))
                         {
-                            case "/start":
-                            {
-                                await _bot.SendTextMessageAsync(id,"1", replyMarkup: Markups.MainMarkup(user.Lang));
-                                break;
-                            }
-                            default:
-                            {
-                                
-                                break;
-                            }
+                            await _bot.SendTextMessageAsync(id, MessageText.Text["MainText"][user.Lang], replyMarkup: InlineKeyboardMarkups.MainMarkup(user.Lang));
+                        }
+                        else
+                        {
+                            
                         }
                         break;
                     }

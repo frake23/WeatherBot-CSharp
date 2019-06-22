@@ -1,13 +1,12 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Threading.Tasks;
 using System.Web;
 
-namespace WeatherBot.WeatherAPI
+namespace WeatherBot.Requests
 {
-    static class Requests
+    internal static class Requests
     {
         private static readonly HttpClient HttpClient;
 
@@ -26,7 +25,7 @@ namespace WeatherBot.WeatherAPI
             return builder.ToString();
         }
         
-        public static async Task<string> GetString(string uri, Dictionary<string, string> parameters)
+        internal static async Task<string> GetString(string uri, Dictionary<string, string> parameters)
         {
             var buildUri = BuildUri(uri, parameters);
             try
