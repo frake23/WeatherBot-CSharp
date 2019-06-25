@@ -10,8 +10,12 @@
   },
   
   "FindCityText": {
-    "ru": "Введите город в фор    мате\n<strong>Москва, ru</strong>\nНайдите двухзначный iso код своей страны на countrycode.org",
+    "ru": "Введите город в формате\n<strong>Москва, ru</strong>\nНайдите двухзначный iso код своей страны на countrycode.org",
     "en": "Type the city in the format\n<strong>London, gb</strong>\nYou can find your country's 2 digit iso code on countrycode.org"
+  },
+  "SavingDataText": {
+    "ru": "Мы <strong>не сохраняем данные</strong> о вашем местоположении, а ищем ближайший населенный пункт.",
+    "en": "We <strong>don't save</strong> your location data, we just find the nearest populated place."
   },
   
   "SettingsText": {

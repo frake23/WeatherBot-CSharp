@@ -4,7 +4,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using WeatherBot.Database.Models;
 using Dapper;
-using Microsoft.Data.Sqlite;
 
 namespace WeatherBot.Database
 {
@@ -20,11 +19,7 @@ namespace WeatherBot.Database
             using (var conn = (T) Activator.CreateInstance(typeof(T), _connectionString))
             {
                 const string sql = @"INSERT INTO users (id, username) VALUES (@id, @username)";
-                await conn.ExecuteAsync(sql, new
-                {
-                    id,
-                    username
-                });
+                await conn.ExecuteAsync(sql, new {id, username});
             }
             return await GetUserById(id);
         }
@@ -33,7 +28,7 @@ namespace WeatherBot.Database
         {
             using (var conn = (T) Activator.CreateInstance(typeof(T), _connectionString))
             {
-                const string sql = "SELECT * FROM users WHERE id = @id";
+                const string sql = @"SELECT * FROM users WHERE id = @id";
                 var query = await conn.QueryAsync<User>(sql, new {id});
                 return query.FirstOrDefault();
             }
@@ -43,7 +38,7 @@ namespace WeatherBot.Database
         {
             using (var conn = (T) Activator.CreateInstance(typeof(T), _connectionString))
             {
-                const string sql = "UPDATE users SET lang = @lang WHERE id = @id";
+                const string sql = @"UPDATE users SET lang = @lang WHERE id = @id";
                 await conn.ExecuteAsync(sql, new {lang, id});
             }
         }
@@ -52,9 +47,52 @@ namespace WeatherBot.Database
         {
             using (var conn = (T) Activator.CreateInstance(typeof(T), _connectionString))
             {
-                const string sql = "UPDATE users SET geoState = @geoState WHERE id = @id";
+                const string sql = @"UPDATE users SET geoState = @geoState WHERE id = @id";
                 await conn.ExecuteAsync(sql, new {geoState, id});
             }
         }
+
+        private async Task<City> GetCityByCoordinates(float latitude, float longitude, string lang)
+        {
+            using (var conn = (T) Activator.CreateInstance(typeof(T), _connectionString))
+            {
+                const string sql = @"SELECT id FROM cities WHERE latitude = @latitude and longitude = @longitude and lang = @lang";
+                var query = await conn.QueryAsync<City>(sql, new {latitude, longitude, lang});
+                return query.FirstOrDefault();
+            }
+        }
+        
+
+        
+        private async Task<City> AddCity(float latitude, float longitude, string lang)
+        {
+            using (var conn = (T) Activator.CreateInstance(typeof(T), _connectionString))
+            {
+                const string sql = @"INSERT INTO cities (latitude, longitude, lang) VALUES (@latitude, @longitude, @lang)";
+                await conn.ExecuteAsync(sql, new {latitude, longitude, lang});
+            }
+            return await GetCityByCoordinates(latitude, longitude, lang);
+        }
+        
+        public async Task UpdateUserCityIdByCoordinates(long id, float latitude, float longitude, string lang)
+        {
+            var city = await GetCityByCoordinates(latitude, longitude, lang) ?? await AddCity(latitude, longitude, lang);
+            var cityId = city.Id;
+            using (var conn = (T) Activator.CreateInstance(typeof(T), _connectionString))
+            {
+                const string sql = @"UPDATE users SET cityId = @cityId WHERE id = @id";
+                await conn.ExecuteAsync(sql, new {cityId, id});
+            }
+        }
+        
+        public async Task<City> GetCityById(long Id)
+         {
+             using (var conn = (T) Activator.CreateInstance(typeof(T), _connectionString))
+             {
+                 const string sql = @"SELECT * FROM cities WHERE Id = @Id";
+                 var query = await conn.QueryAsync<City>(sql, new {Id});
+                 return query.FirstOrDefault();
+             }
+         }
     }
 }
