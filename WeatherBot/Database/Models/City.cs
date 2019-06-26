@@ -6,10 +6,10 @@ namespace WeatherBot.Database.Models
     public class City
     {
         [Column("id")]
-        public long Id { get; set; }
+        public int Id { get; set; }
         
         [Column("geonameId")]
-        public long GeonameId { get; set; }
+        public int GeonameId { get; set; }
 
         [Column("name")]
         public string Name { get; set; }
@@ -39,12 +39,12 @@ namespace WeatherBot.Database.Models
         public string DayAfterTomorrowWeather { get; set; }
         
         [Column("currentWeatherUpdatedTime")]
-        public long? CurrentWeatherUpdatedTime { get; set; }
+        public int? CurrentWeatherUpdatedTime { get; set; }
         
         [Column("forecastUpdatedTime")]
-        public long? ForecastUpdatedTime { get; set; }
+        public int? ForecastUpdatedTime { get; set; }
         
         [Column("timezone")]
-        public long Timezone { get; set; }
+        public string Timezone { get; set; }
     }
 }

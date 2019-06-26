@@ -7,7 +7,7 @@ using Newtonsoft.Json;
 
 namespace WeatherBot.Request
 {
-    internal class Request<T>
+    internal abstract class Request<T>
     {
         internal Request(string uri, Dictionary<string, string> parameters)
         {
@@ -16,11 +16,11 @@ namespace WeatherBot.Request
             _parameters = parameters;
         }
         
-        private readonly HttpClient _httpClient;
-        private readonly string _uri;
-        private readonly Dictionary<string, string> _parameters;
+        protected readonly HttpClient _httpClient;
+        protected readonly string _uri;
+        protected readonly Dictionary<string, string> _parameters;
 
-        private string BuildUri()
+        protected string BuildUri()
         {
             var builder = new UriBuilder(_uri);
             var query = HttpUtility.ParseQueryString(builder.Query);
@@ -30,7 +30,7 @@ namespace WeatherBot.Request
             return builder.ToString();
         }
         
-        private async Task<string> GetString()
+        protected async Task<string> GetString()
         {
             var buildUri = BuildUri();
             try
@@ -44,22 +44,6 @@ namespace WeatherBot.Request
             }
         }
 
-        internal async Task<T> GetJson()
-        {
-            var jsonSerializerSettings = new JsonSerializerSettings
-            {
-                MissingMemberHandling = MissingMemberHandling.Ignore
-            };
-            var uriString = await GetString();
-            try
-            {
-                return JsonConvert.DeserializeObject<T>(uriString, jsonSerializerSettings);
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e);
-                return default;
-            }
-        }
+        internal abstract Task<T> GetDeserialized();
     }
 }

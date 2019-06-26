@@ -61,23 +61,22 @@ namespace WeatherBot.Database
                 return query.FirstOrDefault();
             }
         }
-        
 
-        
-        private async Task<City> AddCity(float latitude, float longitude, string lang)
+        public async Task<City> AddCity(int geonameId, string name, string adminName, string countryCode,
+            float latitude, float longitude, string lang, string timezone)
         {
             using (var conn = (T) Activator.CreateInstance(typeof(T), _connectionString))
             {
-                const string sql = @"INSERT INTO cities (latitude, longitude, lang) VALUES (@latitude, @longitude, @lang)";
-                await conn.ExecuteAsync(sql, new {latitude, longitude, lang});
+                const string sql =
+                    @"INSERT INTO cities (geonameId, name, adminName, countryCode, latitude, longitude, lang, timezone) VALUES (@geonameId, @name, @adminName, @countryCode, @latitude, @longitude, @lang, @timezone)";
+                await conn.ExecuteAsync(sql,
+                    new {geonameId, name, adminName, countryCode, latitude, longitude, lang, timezone});
             }
-            return await GetCityByCoordinates(latitude, longitude, lang);
+            return await GetCityByGeonameId(geonameId, lang);
         }
         
-        public async Task UpdateUserCityIdByCoordinates(long id, float latitude, float longitude, string lang)
+        public async Task UpdateUserCityId(long id, int cityId)
         {
-            var city = await GetCityByCoordinates(latitude, longitude, lang) ?? await AddCity(latitude, longitude, lang);
-            var cityId = city.Id;
             using (var conn = (T) Activator.CreateInstance(typeof(T), _connectionString))
             {
                 const string sql = @"UPDATE users SET cityId = @cityId WHERE id = @id";
@@ -85,14 +84,24 @@ namespace WeatherBot.Database
             }
         }
         
-        public async Task<City> GetCityById(long Id)
-         {
-             using (var conn = (T) Activator.CreateInstance(typeof(T), _connectionString))
-             {
-                 const string sql = @"SELECT * FROM cities WHERE Id = @Id";
-                 var query = await conn.QueryAsync<City>(sql, new {Id});
-                 return query.FirstOrDefault();
-             }
-         }
+        public async Task<City> GetCityById(long id)
+        {
+            using (var conn = (T) Activator.CreateInstance(typeof(T), _connectionString))
+            {
+                const string sql = @"SELECT * FROM cities WHERE id = @id";
+                var query = await conn.QueryAsync<City>(sql, new {id});
+                return query.FirstOrDefault();
+            }
+        }
+        
+        public async Task<City> GetCityByGeonameId(long geonameId, string lang)
+        {
+            using (var conn = (T) Activator.CreateInstance(typeof(T), _connectionString))
+            {
+                const string sql = @"SELECT * FROM cities WHERE geonameId = @geonameId and lang = @lang";
+                var query = await conn.QueryAsync<City>(sql, new {geonameId, lang});
+                return query.FirstOrDefault();
+            }
+        }
     }
 }

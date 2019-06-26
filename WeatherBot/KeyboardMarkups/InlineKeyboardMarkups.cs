@@ -70,7 +70,7 @@ namespace WeatherBot.KeyboardMarkups
         internal static InlineKeyboardMarkup CitiesKeyboardMarkup(JsonSearch jsonSearch)
         {
             return new InlineKeyboardMarkup(
-                jsonSearch.Geonames.Select(geoname => new [] {InlineKeyboardButton.WithCallbackData(geoname.Name + ", " + geoname.AdminName, geoname.GeonameId.ToString())})
+                jsonSearch.Geonames.Select(geoname => new [] {InlineKeyboardButton.WithCallbackData(geoname.Name + ", " + geoname.AdminName, geoname.GeonameId.ToString())}).Append(new []{BackButton("backToSettingsWithZeroGeostate")})
             );
         }
     }

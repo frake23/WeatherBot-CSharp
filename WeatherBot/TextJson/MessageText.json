@@ -31,5 +31,10 @@
   "RequestLocationText": {
     "ru": "Отправить местоположение",
     "en": "Send location"
+  },
+  
+  "ChooseCityText": {
+    "ru": "Выберете город",
+    "en": "Choose the city"
   }
 }

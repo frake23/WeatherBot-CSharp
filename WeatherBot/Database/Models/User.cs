@@ -6,7 +6,7 @@ namespace WeatherBot.Database.Models
     public class User
     {
         [Column("id")]
-        public long Id { get; set; }
+        public int Id { get; set; }
         
         [Column("username")]
         public string Username { get; set; }
@@ -15,10 +15,10 @@ namespace WeatherBot.Database.Models
         public string Lang { get; set; }
         
         [Column("cityId")]
-        public long? CityId { get; set; }
+        public int? CityId { get; set; }
         
         [Column("distributionTime")]
-        public long? DistributionTime { get; set; }
+        public int? DistributionTime { get; set; }
         
         [Column("geoState")]
         public int GeoState { get; set; }
