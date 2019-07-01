@@ -1,6 +1,6 @@
 using System.Xml.Serialization;
 
-namespace WeatherBot.Api.Geonames.Xml.GetForGeonameId
+namespace WeatherBot.Api.Geonames.Xml
 {
     [XmlRoot("geoname")]
     public class XmlGeoname

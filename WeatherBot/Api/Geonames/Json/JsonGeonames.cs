@@ -1,8 +1,9 @@
 using Newtonsoft.Json;
+using WeatherBot.Api.Geonames.Json.Parts;
 
-namespace WeatherBot.Api.Geonames.Json.Search
+namespace WeatherBot.Api.Geonames.Json
 {
-    public class JsonSearch
+    public class JsonGeonames
     {
         [JsonProperty(PropertyName = "geonames")]
         public Geoname[] Geonames { get; set; }

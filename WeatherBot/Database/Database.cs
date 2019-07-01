@@ -84,7 +84,7 @@ namespace WeatherBot.Database
             }
         }
         
-        public async Task<City> GetCityById(long id)
+        public async Task<City> GetCityById(int id)
         {
             using (var conn = (T) Activator.CreateInstance(typeof(T), _connectionString))
             {
@@ -94,13 +94,23 @@ namespace WeatherBot.Database
             }
         }
         
-        public async Task<City> GetCityByGeonameId(long geonameId, string lang)
+        public async Task<City> GetCityByGeonameId(int geonameId, string lang)
         {
             using (var conn = (T) Activator.CreateInstance(typeof(T), _connectionString))
             {
                 const string sql = @"SELECT * FROM cities WHERE geonameId = @geonameId and lang = @lang";
                 var query = await conn.QueryAsync<City>(sql, new {geonameId, lang});
                 return query.FirstOrDefault();
+            }
+        }
+
+        public async Task UpdateCityCurrentWeather(long currentWeatherUpdatedTime, string currentWeather, int id)
+        {
+            using (var conn = (T) Activator.CreateInstance(typeof(T), _connectionString))
+            {
+                const string sql =
+                    @"UPDATE cities SET currentWeather = @currentWeather, currentWeatherUpdatedTime = @currentWeatherUpdatedTime WHERE id = @id";
+                await conn.ExecuteAsync(sql, new {currentWeather, currentWeatherUpdatedTime, id});
             }
         }
     }

@@ -1,0 +1,6 @@
+{
+  "CurrentWeatherText": {
+    "ru": "Погода сейчас в {0}\n<strong>{1}</strong>\n\uD83C\uDF21 <strong>{2} °</strong>\n\uD83D\uDCA8 <strong>{3} м/с</strong>\n\uD83D\uDCC8 <strong>{4} мм рт.ст.</strong>\n\uD83D\uDCA6 <strong>{5} %</strong>\n☁ <strong>{6} %</strong>",
+    "en": "Current weather in {0}\n<strong>{1}</strong>\n\uD83C\uDF21 <strong>{2} °</strong>\n\uD83D\uDCA8 <strong>{3} m/s</strong>\n\uD83D\uDCC8 <strong>{4} mmHg</strong>\n\uD83D\uDCA6 <strong>{5} %</strong>\n☁ <strong>{6} %</strong>"
+  }
+}

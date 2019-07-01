@@ -1,6 +1,6 @@
 using Newtonsoft.Json;
 
-namespace WeatherBot.Api.OpenWeatherMap.Json.CurrentWeather
+namespace WeatherBot.Api.OpenWeatherMap.Json.CurrentWeather.Parts
 {
     public class Weather
     {

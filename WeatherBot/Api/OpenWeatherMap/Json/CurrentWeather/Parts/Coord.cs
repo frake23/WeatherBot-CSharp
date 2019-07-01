@@ -1,13 +1,13 @@
 using Newtonsoft.Json;
 
-namespace WeatherBot.Api.OpenWeatherMap.Json.CurrentWeather
+namespace WeatherBot.Api.OpenWeatherMap.Json.CurrentWeather.Parts
 {
     public class Coord
     {
         [JsonProperty(PropertyName = "lon")]
-        public double Lon { get; set; }
+        public float Lon { get; set; }
         
         [JsonProperty(PropertyName = "lat")]
-        public double Lat { get; set; }
+        public float Lat { get; set; }
     }
 }

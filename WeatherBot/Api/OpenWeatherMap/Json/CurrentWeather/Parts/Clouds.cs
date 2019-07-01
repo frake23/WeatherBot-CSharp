@@ -1,10 +1,10 @@
 using Newtonsoft.Json;
 
-namespace WeatherBot.Api.OpenWeatherMap.Json.CurrentWeather
+namespace WeatherBot.Api.OpenWeatherMap.Json.CurrentWeather.Parts
 {
     public class Clouds
     {
         [JsonProperty(PropertyName = "all")]
-        public string All { get; set; }
+        public int All { get; set; }
     }
 }

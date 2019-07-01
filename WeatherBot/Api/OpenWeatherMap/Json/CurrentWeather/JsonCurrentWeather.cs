@@ -1,4 +1,6 @@
 using Newtonsoft.Json;
+using WeatherBot.Api.OpenWeatherMap.Json.CurrentWeather.Parts;
+
 
 namespace WeatherBot.Api.OpenWeatherMap.Json.CurrentWeather
 {
@@ -27,7 +29,7 @@ namespace WeatherBot.Api.OpenWeatherMap.Json.CurrentWeather
         public Clouds Clouds { get; set; }
         
         [JsonProperty(PropertyName = "dt")]
-        public long Dt { get; set; }
+        public int Dt { get; set; }
         
         [JsonProperty(PropertyName = "sys")]
         public Sys Sys { get; set; }

@@ -1,13 +1,13 @@
 using Newtonsoft.Json;
 
-namespace WeatherBot.Api.OpenWeatherMap.Json.CurrentWeather
+namespace WeatherBot.Api.OpenWeatherMap.Json.CurrentWeather.Parts
 {
     public class Wind
     {
         [JsonProperty(PropertyName = "speed")]
-        public double Speed { get; set; }
+        public float Speed { get; set; }
 
         [JsonProperty(PropertyName = "deg")]
-        public int Deg { get; set; }
+        public float Deg { get; set; }
     }
 }

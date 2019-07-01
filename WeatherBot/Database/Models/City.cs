@@ -39,10 +39,10 @@ namespace WeatherBot.Database.Models
         public string DayAfterTomorrowWeather { get; set; }
         
         [Column("currentWeatherUpdatedTime")]
-        public int? CurrentWeatherUpdatedTime { get; set; }
+        public long CurrentWeatherUpdatedTime { get; set; }
         
         [Column("forecastUpdatedTime")]
-        public int? ForecastUpdatedTime { get; set; }
+        public long ForecastUpdatedTime { get; set; }
         
         [Column("timezone")]
         public string Timezone { get; set; }

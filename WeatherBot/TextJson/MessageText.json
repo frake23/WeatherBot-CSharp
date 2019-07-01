@@ -9,7 +9,7 @@
     "en": "Geolocation is <strong>not cofigured</strong>.\nChoose the way to set up it"
   },
   
-  "FindCityText": {
+  "SearchCityText": {
     "ru": "Введите город в формате\n<strong>Москва, ru</strong>\nНайдите двухзначный iso код своей страны на countrycode.org",
     "en": "Type the city in the format\n<strong>London, gb</strong>\nYou can find your country's 2 digit iso code on countrycode.org"
   },
@@ -36,5 +36,10 @@
   "ChooseCityText": {
     "ru": "Выберете город",
     "en": "Choose the city"
+  },
+  
+  "ConfigureGeolocationText": {
+    "ru": "Сначала настройте геолокацию",
+    "en": "First of all configure the geolocation"
   }
 }

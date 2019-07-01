@@ -1,8 +1,9 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Threading.Tasks;
-using WeatherBot.Api.Geonames.Json.Search;
-using WeatherBot.Api.Geonames.Xml.GetForGeonameId;
+using WeatherBot.Api.Geonames.Json;
+using WeatherBot.Api.Geonames.Xml;
 using WeatherBot.Request;
 
 namespace WeatherBot.Api.Geonames
@@ -15,12 +16,14 @@ namespace WeatherBot.Api.Geonames
         }
 
         private string[] _tokens;
+        
         private const string SearchUri = "http://api.geonames.org/searchJSON?";
         private const string GetUri = "http://api.geonames.org/get?";
+        private const string FindNearbyPlaceNameUri = "http://api.geonames.org/findNearbyPlaceNameJSON?";
 
-        internal async Task<JsonSearch> FindCity(string name, string country, string lang, int maxRows, string featureClass)
+        internal async Task<JsonGeonames> SearchCity(string name, string country, string lang, string featureClass, int maxRows=5)
         {
-            var parametres = new Dictionary<string, string>
+            var parameters = new Dictionary<string, string>
             {
                 {"name", name},
                 {"country", country},
@@ -33,8 +36,8 @@ namespace WeatherBot.Api.Geonames
             {
                 try
                 {
-                    parametres["username"] = token;
-                    var request = new JsonRequest<JsonSearch>(SearchUri, parametres);
+                    parameters["username"] = token;
+                    var request = new JsonRequest<JsonGeonames>(SearchUri, parameters);
                     return await request.GetDeserialized();
                 }
                 catch (Exception e)
@@ -42,12 +45,40 @@ namespace WeatherBot.Api.Geonames
                     Console.WriteLine(e);
                 }
             }
+            
+            return null;
+        }
+        
+        internal async Task<JsonGeonames> NearbyPlacename(float latitude, float longitude, string lang, string cities="cities15000")
+        {
+            var parameters = new Dictionary<string, string>
+            {
+                {"lat", latitude.ToString("0.000000", CultureInfo.InvariantCulture)},
+                {"lng", longitude.ToString("0.000000", CultureInfo.InvariantCulture)},
+                {"cities", cities},
+                {"lang", lang},
+                {"username", ""}
+            };
+            foreach (var token in _tokens)
+            {
+                try
+                {
+                    parameters["username"] = token;
+                    var request = new JsonRequest<JsonGeonames>(FindNearbyPlaceNameUri, parameters);
+                    return await request.GetDeserialized();
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e);
+                }
+            }
+            
             return null;
         }
 
-        internal async Task<XmlGeoname> GetCityForId(int geonameId, string lang)
+        internal async Task<XmlGeoname> CityForGeonameId(int geonameId, string lang)
         {
-            var parametres = new Dictionary<string, string>
+            var parameters = new Dictionary<string, string>
             {
                 {"geonameId", geonameId.ToString()},
                 {"lang", lang}
@@ -56,8 +87,8 @@ namespace WeatherBot.Api.Geonames
             {
                 try
                 {
-                    parametres["username"] = token;
-                    var request = new XmlRequest<XmlGeoname>(GetUri, parametres);
+                    parameters["username"] = token;
+                    var request = new XmlRequest<XmlGeoname>(GetUri, parameters);
                     return await request.GetDeserialized();
                 }
                 catch (Exception e)

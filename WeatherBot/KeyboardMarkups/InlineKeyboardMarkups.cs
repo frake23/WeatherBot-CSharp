@@ -1,25 +1,30 @@
 using System.Linq;
 using Telegram.Bot.Types.ReplyMarkups;
-using WeatherBot.Api.Geonames.Json.Search;
+using WeatherBot.Api.Geonames.Json;
 using WeatherBot.TextJson;
 
 namespace WeatherBot.KeyboardMarkups
 {
-    internal static class InlineKeyboardMarkups
+    internal class InlineKeyboardMarkups
     {
-        private static Text _keyboardMarkupsText = new Text(Config.KeyboardMarkupsTextPath);
-        private static InlineKeyboardButton BackButton(string callbackData)
+        internal InlineKeyboardMarkups(Text keyboardMarkupsText)
+        {
+            _keyboardMarkupsText = keyboardMarkupsText;
+        }
+
+        private readonly Text _keyboardMarkupsText;
+        private InlineKeyboardButton BackButton(string callbackData)
         {
             return InlineKeyboardButton.WithCallbackData("⬅", callbackData);
         }
-        internal static InlineKeyboardMarkup MainInlineMarkup(string lang)
+        internal InlineKeyboardMarkup MainInlineMarkup(string lang)
         {
             return new InlineKeyboardMarkup(new []
             {
                 new []
                 {
-                    InlineKeyboardButton.WithCallbackData(_keyboardMarkupsText.Json["CurrentWeatherText"][lang], "getCurrentWeather"),
-                    InlineKeyboardButton.WithCallbackData(_keyboardMarkupsText.Json["FewDaysForecastText"][lang], "getFewDaysForecast") 
+                    InlineKeyboardButton.WithCallbackData(_keyboardMarkupsText.Json["CurrentWeatherText"][lang], "currentWeather"),
+                    InlineKeyboardButton.WithCallbackData(_keyboardMarkupsText.Json["FewDaysForecastText"][lang], "fewDaysForecast") 
                 },
                 new[]
                 {
@@ -28,7 +33,7 @@ namespace WeatherBot.KeyboardMarkups
             });
         }
         
-        internal static InlineKeyboardMarkup SettingsInlineMarkup(string lang)
+        internal InlineKeyboardMarkup SettingsInlineMarkup(string lang)
         {
             return new InlineKeyboardMarkup(new []
             {
@@ -51,7 +56,7 @@ namespace WeatherBot.KeyboardMarkups
             });
         }
         
-        internal static InlineKeyboardMarkup LanguageInlineMarkup()
+        internal InlineKeyboardMarkup LanguageInlineMarkup()
         {
             return new InlineKeyboardMarkup(new []
             {
@@ -67,11 +72,19 @@ namespace WeatherBot.KeyboardMarkups
             });
         }
 
-        internal static InlineKeyboardMarkup CitiesKeyboardMarkup(JsonSearch jsonSearch)
+        internal InlineKeyboardMarkup CitiesInlineMarkup(JsonGeonames jsonGeonames)
         {
             return new InlineKeyboardMarkup(
-                jsonSearch.Geonames.Select(geoname => new [] {InlineKeyboardButton.WithCallbackData(geoname.Name + ", " + geoname.AdminName, geoname.GeonameId.ToString())}).Append(new []{BackButton("backToSettingsWithZeroGeostate")})
+                jsonGeonames.Geonames.Select(geoname => new [] {InlineKeyboardButton.WithCallbackData(geoname.Name + ", " + geoname.AdminName, geoname.GeonameId.ToString())}).Append(new []{BackButton("backToSettingsWithZeroGeostate")})
             );
+        }
+
+        internal InlineKeyboardMarkup BackFromCurrentWeatherInlineMarkup()
+        {
+            return new InlineKeyboardMarkup(new []
+            {
+                BackButton("backToMain")
+            });
         }
     }
 }

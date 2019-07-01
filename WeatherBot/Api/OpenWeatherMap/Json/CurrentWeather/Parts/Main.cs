@@ -1,22 +1,22 @@
 using Newtonsoft.Json;
 
-namespace WeatherBot.Api.OpenWeatherMap.Json.CurrentWeather
+namespace WeatherBot.Api.OpenWeatherMap.Json.CurrentWeather.Parts
 {
     public class Main
     {
         [JsonProperty(PropertyName = "temp")]
-        public double Temp { get; set; }
+        public float Temp { get; set; }
         
         [JsonProperty(PropertyName = "pressure")]
-        public double Pressure { get; set; }
+        public float Pressure { get; set; }
         
         [JsonProperty(PropertyName = "humidity")]
         public int Humidity { get; set; }
         
         [JsonProperty(PropertyName = "temp_min")]
-        public double TempMin { get; set; }
+        public float TempMin { get; set; }
         
         [JsonProperty(PropertyName = "temp_max")]
-        public double TempMax { get; set; }
+        public float TempMax { get; set; }
     }
 }
