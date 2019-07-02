@@ -1,14 +1,15 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Data.Sqlite;
 using MihaZupan;
 using Telegram.Bot;
 using Telegram.Bot.Args;
 using Telegram.Bot.Types.Enums;
+using Telegram.Bot.Types.ReplyMarkups;
 using WeatherBot.Api.Geonames;
 using WeatherBot.Api.OpenWeatherMap;
 using WeatherBot.Database;
+using WeatherBot.Database.Connector;
 using WeatherBot.KeyboardMarkups;
 using WeatherBot.TextJson;
 using WeatherBot.Utils;
@@ -18,22 +19,26 @@ namespace WeatherBot
     public static class Program
     {
         private static ITelegramBotClient _bot;
-        private static Database<SqliteConnection> _database;
+
+        private static IDbConnector _sqliteConnector;
+        private static Db _db;
         
         private static Text _messageText;
         private static Text _keyboardMarkupsText;
         private static Text _weatherText;
 
-        private static Geonames _geonames;
-        private static OpenWeatherMap _openWeatherMap;
-
         private static Weather _weather;
+        private static Cities _cities;
 
         private static InlineKeyboardMarkups _inlineKeyboardMarkups;
         private static ReplyKeyboardMarkups _replyKeyboardMarkups;
         
         public static async Task Main()
         {
+            _sqliteConnector = new SqliteConnector(Config.SqliteConnectionString);
+            
+            _db = new Db(_sqliteConnector);
+            
             _messageText = new Text(Config.MessageTextJsonPath);
             _keyboardMarkupsText = new Text(Config.KeyboardMarkupsTextPath);
             _weatherText = new Text(Config.WeatherTextPath);
@@ -41,14 +46,10 @@ namespace WeatherBot
             _inlineKeyboardMarkups = new InlineKeyboardMarkups(_keyboardMarkupsText);
             _replyKeyboardMarkups = new ReplyKeyboardMarkups(_keyboardMarkupsText);
             
-            _geonames = new Geonames(Config.GeonamesTokens);
-            _openWeatherMap = new OpenWeatherMap(Config.OwmTokens);
-            
-            _weather = new Weather(_weatherText);
+            _weather = new Weather(Config.OwmTokens, _weatherText, _db);
+            _cities = new Cities(Config.GeonamesTokens, _db);
             
             _bot = new TelegramBotClient(Config.BotToken, new HttpToSocks5Proxy("127.0.0.1", 9150));
-            _database = new Database<SqliteConnection>(Config.SqliteConnectionString);
-            
             await _bot.DeleteWebhookAsync();
             _bot.OnMessage += BotOnMessage;
             _bot.OnCallbackQuery += BotOnCallbackQuery;
@@ -62,7 +63,7 @@ namespace WeatherBot
             var callbackQueryData = callbackQuery.Data;
             var messageId = callbackQuery.Message.MessageId;
             var id = callbackQuery.From.Id;
-            var user = await _database.GetUserById(id);
+            var user = await _db.GetUserById(id);
             var lang = user.Lang;
 
             switch (callbackQueryData)
@@ -77,17 +78,7 @@ namespace WeatherBot
                     }
                     else
                     {
-                        var city = await _database.GetCityById((int) cityId);
-                        var currentWeatherText = city.CurrentWeather;
-                        var now = Time.Now();
-                        if (now - city.CurrentWeatherUpdatedTime > 3600)
-                        {
-                            var currentWeather =
-                                await _openWeatherMap.CurrentWeather(city.Latitude, city.Longitude, lang);
-                            currentWeatherText = _weather.CurrentWeather(currentWeather, city.Name, lang);
-                            await _database.UpdateCityCurrentWeather(now, currentWeatherText, city.Id);
-                        }
-
+                        var currentWeatherText = await _weather.CurrentWeatherText((int) cityId);
                         await _bot.EditMessageTextAsync(id, messageId, currentWeatherText, ParseMode.Html,
                             replyMarkup: _inlineKeyboardMarkups.BackFromCurrentWeatherInlineMarkup());
                     }
@@ -112,7 +103,7 @@ namespace WeatherBot
                 {
                     await _bot.EditMessageTextAsync(id, messageId, _messageText.Json["SettingsText"][lang],
                         replyMarkup: _inlineKeyboardMarkups.SettingsInlineMarkup(lang));
-                    await _database.UpdateGeoState(id, 0);
+                    await _db.UpdateGeoState(id, 0);
                     
                     break;
                 }
@@ -137,12 +128,12 @@ namespace WeatherBot
                         }
                         else
                         {
-                            var city = await _database.GetCityById((int) cityId);
+                            var city = await _db.GetCityById((int) cityId);
                             await _bot.SendLocationAsync(id, city.Latitude, city.Longitude,
                                 replyMarkup: _replyKeyboardMarkups.LocationReplyMarkup(lang));
                         }
 
-                        await _database.UpdateGeoState(id, 1);
+                        await _db.UpdateGeoState(id, 1);
                     }
 
                     break;
@@ -156,7 +147,7 @@ namespace WeatherBot
                 }
                 case "englishLanguage":
                 {
-                    await _database.UpdateLanguage(id, "en");
+                    await _db.UpdateLanguage(id, "en");
                     await _bot.EditMessageTextAsync(id, messageId, _messageText.Json["SettingsText"]["en"],
                         replyMarkup: _inlineKeyboardMarkups.SettingsInlineMarkup("en"));
                     
@@ -164,7 +155,7 @@ namespace WeatherBot
                 }
                 case "russianLanguage":
                 {
-                    await _database.UpdateLanguage(id, "ru");
+                    await _db.UpdateLanguage(id, "ru");
                     await _bot.EditMessageTextAsync(id, messageId, _messageText.Json["SettingsText"]["ru"],
                         replyMarkup: _inlineKeyboardMarkups.SettingsInlineMarkup("ru"));
                     
@@ -175,20 +166,12 @@ namespace WeatherBot
                     if (user.GeoState == 3)
                     {
                         var geonameId = int.Parse(callbackQueryData);
-                        var city = await _database.GetCityByGeonameId(geonameId, lang);
-                        if (city == null)
-                        {    
-                            var geoname = await _geonames.CityForGeonameId(geonameId, lang);
-                            await _database.AddCity(geoname.GeonameId, geoname.Name, geoname.AdminName,
-                                geoname.CountryCode,
-                                geoname.Latitude, geoname.Longitude, lang, geoname.Timezone);
-                            city = await _database.GetCityByGeonameId(geonameId, lang);
-                        }
+                        var cityId = await _cities.CityId(geonameId, lang);
 
-                        await _database.UpdateUserCityId(id, city.Id);
+                        await _db.UpdateUserCityId(id, cityId);
                         await _bot.EditMessageTextAsync(id, messageId, _messageText.Json["SettingsText"][lang],
                             replyMarkup: _inlineKeyboardMarkups.SettingsInlineMarkup(lang));
-                        await _database.UpdateGeoState(id, 0);
+                        await _db.UpdateGeoState(id, 0);
                     }
 
                     break;
@@ -208,7 +191,7 @@ namespace WeatherBot
 
                 var id = msg.Chat.Id;
                 var username = msg.Chat.Username;
-                var user = await _database.GetUserById(id) ?? await _database.AddUser(id, username);
+                var user = await _db.GetUserById(id) ?? await _db.AddUser(id, username);
                 var lang = user.Lang;
                 var geoState = user.GeoState;
                 
@@ -232,22 +215,22 @@ namespace WeatherBot
                            {
                                 await _bot.SendTextMessageAsync(id, _messageText.Json["SettingsText"][lang],
                                     replyMarkup: _inlineKeyboardMarkups.SettingsInlineMarkup(lang));
-                                await _database.UpdateGeoState(id, 0);
+                                await _db.UpdateGeoState(id, 0);
                            }
                            else if (text.Equals(_keyboardMarkupsText.Json["SearchCityText"]["ru"]) ||
                                       text.Equals(_keyboardMarkupsText.Json["SearchCityText"]["en"]))
                            {
                                await _bot.SendTextMessageAsync(id, _messageText.Json["SearchCityText"][lang],
-                                   ParseMode.Html);
-                               await _database.UpdateGeoState(id, 2);
+                                   ParseMode.Html, replyMarkup: new ReplyKeyboardRemove());
+                               await _db.UpdateGeoState(id, 2);
                            }
                         }
                         else if (geoState == 2)
                         {
                             var placenameArgs = text.Split(", ");
-                            var jsonSearch = await _geonames.SearchCity(placenameArgs[0], placenameArgs[1], lang, "p");
-                            await _bot.SendTextMessageAsync(id, _messageText.Json["ChooseCityText"][lang], replyMarkup: _inlineKeyboardMarkups.CitiesInlineMarkup(jsonSearch));
-                            await _database.UpdateGeoState(id, 3);
+                            var citiesInlineMarkup = await _cities.CitiesInlineKeyboard(placenameArgs[0], placenameArgs[1], lang);
+                            await _bot.SendTextMessageAsync(id, _messageText.Json["ChooseCityText"][lang], replyMarkup: citiesInlineMarkup);
+                            await _db.UpdateGeoState(id, 3);
                         }
                         
                         break;
@@ -257,24 +240,13 @@ namespace WeatherBot
                         if (geoState == 1)
                         {
                             var location = msg.Location;
-                            var nearbyPlacenames = await _geonames.NearbyPlacename(location.Latitude, location.Longitude, lang);
-                            var nearbyPlacename = nearbyPlacenames.Geonames[0];
-
-                            var geonameId = nearbyPlacename.GeonameId;
-                            var city = await _database.GetCityByGeonameId(geonameId, lang);
-                            if (city == null)
-                            {    
-                                var geoname = await _geonames.CityForGeonameId(geonameId, lang);
-                                await _database.AddCity(geoname.GeonameId, geoname.Name, geoname.AdminName,
-                                    geoname.CountryCode,
-                                    geoname.Latitude, geoname.Longitude, lang, geoname.Timezone);
-                                city = await _database.GetCityByGeonameId(geonameId, lang);
-                            }
-
-                            await _database.UpdateUserCityId(id, city.Id);
+                            var geonameId = await _cities.NearbyGeonameId(location.Latitude, location.Longitude, lang);
+                            var cityId = await _cities.CityId(geonameId, lang);
+                            
+                            await _db.UpdateUserCityId(id, cityId);
                             await _bot.SendTextMessageAsync(id, _messageText.Json["SettingsText"][lang],
                                 replyMarkup: _inlineKeyboardMarkups.SettingsInlineMarkup(lang));
-                            await _database.UpdateGeoState(id, 0);
+                            await _db.UpdateGeoState(id, 0);
                         }
 
                         break;

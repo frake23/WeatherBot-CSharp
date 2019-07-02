@@ -46,5 +46,8 @@ namespace WeatherBot.Database.Models
         
         [Column("timezone")]
         public string Timezone { get; set; }
+        
+        [Column("lang")]
+        public string Lang { get; set; }
     }
 }

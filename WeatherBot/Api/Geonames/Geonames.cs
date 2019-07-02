@@ -21,7 +21,7 @@ namespace WeatherBot.Api.Geonames
         private const string GetUri = "http://api.geonames.org/get?";
         private const string FindNearbyPlaceNameUri = "http://api.geonames.org/findNearbyPlaceNameJSON?";
 
-        internal async Task<JsonGeonames> SearchCity(string name, string country, string lang, string featureClass, int maxRows=5)
+        internal async Task<JsonGeonames> SearchCity(string name, string country, string lang, string featureClass="p", int maxRows=5)
         {
             var parameters = new Dictionary<string, string>
             {

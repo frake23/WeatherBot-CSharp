@@ -13,7 +13,7 @@ namespace WeatherBot.KeyboardMarkups
         }
 
         private readonly Text _keyboardMarkupsText;
-        private InlineKeyboardButton BackButton(string callbackData)
+        private static InlineKeyboardButton BackButton(string callbackData)
         {
             return InlineKeyboardButton.WithCallbackData("⬅", callbackData);
         }
@@ -72,10 +72,10 @@ namespace WeatherBot.KeyboardMarkups
             });
         }
 
-        internal InlineKeyboardMarkup CitiesInlineMarkup(JsonGeonames jsonGeonames)
+        internal static InlineKeyboardMarkup CitiesInlineMarkup(JsonGeonames jsonGeonames)
         {
             return new InlineKeyboardMarkup(
-                jsonGeonames.Geonames.Select(geoname => new [] {InlineKeyboardButton.WithCallbackData(geoname.Name + ", " + geoname.AdminName, geoname.GeonameId.ToString())}).Append(new []{BackButton("backToSettingsWithZeroGeostate")})
+                jsonGeonames.Geonames.Select(geoname => new [] {InlineKeyboardButton.WithCallbackData($"{geoname.Name}, {geoname.AdminName}", geoname.GeonameId.ToString())}).Append(new []{BackButton("backToSettingsWithZeroGeostate")})
             );
         }
 
